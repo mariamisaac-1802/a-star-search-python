@@ -1,0 +1,38 @@
+import queue as q
+
+# Edge costs g(n): graph[node][child] = cost
+graph = {
+    'S':  {'A': 3, 'B': 1, 'C': 5},
+    'A':  {'G1': 10, 'E': 7},
+    'B':  {'C': 2, 'F': 2},
+    'C':  {'G3': 11},
+    'D':  {'S': 6, 'B': 4, 'G2': 5},
+    'E':  {'G1': 2},
+    'F':  {'D': 1},
+    'G1': {},
+    'G2': {},
+    'G3': {'F': 0}
+}
+
+# Heuristic values h(n) (the small number under each node; goals = 0)
+h = {'S': 8, 'A': 9, 'B': 1, 'C': 3, 'D': 4, 'E': 1, 'F': 5,
+     'G1': 0, 'G2': 0, 'G3': 0}
+
+# This defines a function that runs the A* algorithm. where: graph = the map, start = the node to start from, end = list of goal nodes.
+def a_star(graph, start, end):
+    queue = q.PriorityQueue()   # Python’s PriorityQueue automatically orders entries from smallest to largest first value
+    queue.put((h[start], [start]))            # f = g + h = 0 + h(start) -> example: (8, ['S']), this means: priority = 8 of node S
+    while not queue.empty():    # Keep processing nodes until the queue is empty.
+        node = queue.get()  # Removes the node with the smallest priority from the queue.
+        current = node[1][-1]
+        if current in end:                    # end is a list of goal nodes
+            print('path found ' + str(node[1]) + ' cost ' + str(node[0] - h[current]))
+            break
+        cost = node[0] - h[current]           # recover g(n) from f(n)
+        for child in graph[current]:
+            path = node[1][:]
+            path.append(child)
+            g = cost + graph[current][child]  # g(child)
+            queue.put((g + h[child], path))   # f(child) = g(child) + h(child)
+
+a_star(graph, 'S', ['G1', 'G2', 'G3'])
